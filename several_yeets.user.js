@@ -2,7 +2,7 @@
 // @name         Several Yeets
 // @namespace    hh-several-yeets
 // @author       arush
-// @version      1.0.2
+// @version      1.0.3
 // @description  Removes a few unnecessary things to make it less cluttered (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -364,10 +364,10 @@
 
     if (!unsafeWindow['hhPlusPlusConfig']) {
         console.log(`[Several Yeets] waiting for HHPlusPlus`);
-        $(document).one('hh++-bdsm:loaded', () => {
+        document.addEventListener('hh++-bdsm:loaded', () => {
             console.log('[Several Yeets] HHPlusPlus ready, restart script');
             severalYeets();
-        });
+        }, { once: true });
         return;
     }
 

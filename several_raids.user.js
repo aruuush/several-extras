@@ -2,7 +2,7 @@
 // @name         Several Raids
 // @namespace    hh-several-raids
 // @author       arush
-// @version      1.14.1
+// @version      1.14.2
 // @description  Grey out or hide raid cards based on shard progress, villain id, or star level (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -225,10 +225,10 @@
 
     if (!unsafeWindow['hhPlusPlusConfig']) {
         console.log(`[Several Raids] waiting for HHPlusPlus`);
-        $(document).one('hh++-bdsm:loaded', () => {
+        document.addEventListener('hh++-bdsm:loaded', () => {
             console.log('[Several Raids] HHPlusPlus ready, restart script');
             severalRaids();
-        });
+        }, { once: true });
         return;
     }
 
