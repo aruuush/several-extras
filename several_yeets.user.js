@@ -355,9 +355,9 @@
     }
 
     if (!unsafeWindow['hhPlusPlusConfig']) {
-        log(`waiting for HHPlusPlus`);
+        console.log(`waiting for HHPlusPlus`);
         $(document).one('hh++-bdsm:loaded', () => {
-            log('HHPlusPlus ready, restart script');
+            console.log('HHPlusPlus ready, restart script');
             severalYeets();
         });
         return;
