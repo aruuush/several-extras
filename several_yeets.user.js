@@ -151,7 +151,8 @@
             !window.location.pathname.includes('waifu') &&
             !window.location.pathname.includes('characters') &&
             !window.location.pathname.includes('pvp-arena') &&
-            !window.location.pathname.includes('champions')) {
+            !window.location.pathname.includes('champions') &&
+            !window.location.pathname.includes('club-champion')) {
             return;
         }
 
