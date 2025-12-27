@@ -16,14 +16,14 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(async function severalYeets () {
+(async function severalYeets() {
     'use strict';
 
     function removeAllBackgrounds() {
         doWhenSelectorAvailable('#bg_all .fixed_scaled img', () => {
             const img = document.querySelector('#bg_all .fixed_scaled img');
             img.remove();
-            console.log('Removed backgrounds');
+            console.log('[Several Yeets] Removed backgrounds');
         });
     }
 
@@ -35,7 +35,7 @@
         doWhenSelectorAvailable('.waifu-buttons-container', () => {
             const container = document.querySelector('.waifu-buttons-container');
             container.style.display = 'none';
-            console.log('Removed waifu buttons');
+            console.log('[Several Yeets] Removed waifu buttons');
         });
     }
 
@@ -47,7 +47,7 @@
         doWhenSelectorAvailable('.credits', () => {
             const el = document.querySelector('.credits');
             el.remove();
-            console.log('Removed credits from Labyrinth++');
+            console.log('[Several Yeets] Removed credits from Labyrinth++');
         });
     }
 
@@ -55,7 +55,7 @@
         if (window.location.pathname.includes('shop.html')) {
             doWhenSelectorAvailable('#ad_shop', (el) => {
                 el.remove();
-                console.log('Removed market ads');
+                console.log('[Several Yeets] Removed market ads');
             });
         }
     }
@@ -126,7 +126,7 @@
             const girlImage = document.querySelector('.champions-over__girl-image');
             if (girlImage) {
                 girlImage.remove();
-                console.log('Removed champions girl image');
+                console.log('[Several Yeets] Removed champions girl image');
             }
         });
     }
@@ -141,7 +141,7 @@
 
             if (claimAllButton) {
                 claimAllButton.remove();
-                console.log('Removed Claim All button from Penta Drill');
+                console.log('[Several Yeets] Removed Claim All button from Penta Drill');
             }
         });
     }
@@ -355,9 +355,9 @@
     }
 
     if (!unsafeWindow['hhPlusPlusConfig']) {
-        console.log(`waiting for HHPlusPlus`);
+        console.log(`[Several Yeets] waiting for HHPlusPlus`);
         $(document).one('hh++-bdsm:loaded', () => {
-            console.log('HHPlusPlus ready, restart script');
+            console.log('[Several Yeets] HHPlusPlus ready, restart script');
             severalYeets();
         });
         return;
