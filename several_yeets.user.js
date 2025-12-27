@@ -13,7 +13,7 @@
 // @grant        GM_getValue
 // @grant        GM_addStyle
 // @grant        unsafeWindow
-// @run-at       document-idle
+// @run-at       document-start
 // ==/UserScript==
 
 (async function severalYeets () {
