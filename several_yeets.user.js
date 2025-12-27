@@ -2,7 +2,7 @@
 // @name         Several Yeets
 // @namespace    hh-several-yeets
 // @author       arush
-// @version      1.0.3
+// @version      1.0.4
 // @description  Removes a few unnecessary things to make it less cluttered (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -23,7 +23,41 @@
 // @run-at       document-start
 // ==/UserScript==
 
-(async function severalYeets() {
+if (unsafeWindow.__severalYeetsInitialized) {
+    console.log('[Several Yeets] already initialized, skipping');
+    return;
+}
+unsafeWindow.__severalYeetsInitialized = true;
+
+function waitForHHPlusPlus(cb) {
+    if (unsafeWindow.hhPlusPlusConfig) {
+        console.log('[Several Yeets] HH++ already loaded');
+        cb();
+        return;
+    }
+
+    console.log('[Several Yeets] waiting for HHPlusPlus');
+
+    let done = false;
+
+    const finish = () => {
+        if (done) return;
+        done = true;
+        console.log('[Several Yeets] HH++ detected');
+        cb();
+    };
+
+    document.addEventListener('hh++-bdsm:loaded', finish, { once: true });
+
+    const poll = setInterval(() => {
+        if (unsafeWindow.hhPlusPlusConfig) {
+            clearInterval(poll);
+            finish();
+        }
+    }, 10);
+}
+
+async function severalYeets() {
     'use strict';
 
     function removeAllBackgrounds() {
@@ -362,15 +396,6 @@
         return config;
     }
 
-    if (!unsafeWindow['hhPlusPlusConfig']) {
-        console.log(`[Several Yeets] waiting for HHPlusPlus`);
-        document.addEventListener('hh++-bdsm:loaded', () => {
-            console.log('[Several Yeets] HHPlusPlus ready, restart script');
-            severalYeets();
-        }, { once: true });
-        return;
-    }
-
     /* --------------------------------------------
      * Initialization
      * ------------------------------------------ */
@@ -416,4 +441,8 @@
     if (CONFIG.changeGirlsToPokemons.enabled) {
         changeGirlsToPokemons();
     }
-})();
+}
+
+waitForHHPlusPlus(() => {
+    severalYeets();
+});

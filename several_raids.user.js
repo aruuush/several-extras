@@ -2,7 +2,7 @@
 // @name         Several Raids
 // @namespace    hh-several-raids
 // @author       arush
-// @version      1.14.2
+// @version      1.14.3
 // @description  Grey out or hide raid cards based on shard progress, villain id, or star level (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -23,7 +23,41 @@
 // @run-at       document-idle
 // ==/UserScript==
 
-(async function severalRaids() {
+if (unsafeWindow.__severalRaidsInitialized) {
+    console.log('[Several Raids] already initialized, skipping');
+    return;
+}
+unsafeWindow.__severalRaidsInitialized = true;
+
+function waitForHHPlusPlus(cb) {
+    if (unsafeWindow.hhPlusPlusConfig) {
+        console.log('[Several Raids] HH++ already loaded');
+        cb();
+        return;
+    }
+
+    console.log('[Several Raids] waiting for HHPlusPlus');
+
+    let done = false;
+
+    const finish = () => {
+        if (done) return;
+        done = true;
+        console.log('[Several Raids] HH++ detected');
+        cb();
+    };
+
+    document.addEventListener('hh++-bdsm:loaded', finish, { once: true });
+
+    const poll = setInterval(() => {
+        if (unsafeWindow.hhPlusPlusConfig) {
+            clearInterval(poll);
+            finish();
+        }
+    }, 10);
+}
+
+async function severalRaids() {
     'use strict';
 
     /* --------------------------------------------
@@ -223,15 +257,6 @@
         return config;
     }
 
-    if (!unsafeWindow['hhPlusPlusConfig']) {
-        console.log(`[Several Raids] waiting for HHPlusPlus`);
-        document.addEventListener('hh++-bdsm:loaded', () => {
-            console.log('[Several Raids] HHPlusPlus ready, restart script');
-            severalRaids();
-        }, { once: true });
-        return;
-    }
-
     /* --------------------------------------------
      * Initialization
      * ------------------------------------------ */
@@ -269,4 +294,8 @@
         raidTimeout = setTimeout(() => greyOutRaids(CONFIG), 10);
     });
     raidObserver.observe(document.body, { childList: true, subtree: true });
-})();
+}
+
+waitForHHPlusPlus(() => {
+    severalRaids();
+});
