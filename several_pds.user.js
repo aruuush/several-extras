@@ -3,9 +3,16 @@
 // @namespace    hh-pentadrill
 // @author       arush
 // @version      1.0.1
-// @description  Replace class icon with a persistent star toggle on Penta Drill opponents
+// @description  Replace class icon with a persistent star toggle on Penta Drill opponents (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/penta-drill-arena*
 // @match        *://*.haremheroes.com/penta-drill-arena*
+// @match        *://*.gayharem.com/penta-drill-arena*
+// @match        *://*.comixharem.com/penta-drill-arena*
+// @match        *://*.hornyheroes.com/penta-drill-arena*
+// @match        *://*.pornstarharem.com/penta-drill-arena*
+// @match        *://*.transpornstarharem.com/penta-drill-arena*
+// @match        *://*.gaypornstarharem.com/penta-drill-arena*
+// @match        *://*.mangarpg.com/penta-drill-arena*
 // @downloadURL  https://raw.githubusercontent.com/aruuush/several-extras/main/several_pds.user.js
 // @updateURL    https://raw.githubusercontent.com/aruuush/several-extras/main/several_pds.user.js
 // @icon         https://cdn3.iconfinder.com/data/icons/sex-6/128/XXX_3-02-512.png

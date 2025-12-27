@@ -3,9 +3,16 @@
 // @namespace    hh-several-raids
 // @author       arush
 // @version      1.14.0
-// @description  Grey out or hide raid cards based on shard progress, villain id, or star level
+// @description  Grey out or hide raid cards based on shard progress, villain id, or star level (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
+// @match        *://*.gayharem.com/*
+// @match        *://*.comixharem.com/*
+// @match        *://*.hornyheroes.com/*
+// @match        *://*.pornstarharem.com/*
+// @match        *://*.transpornstarharem.com/*
+// @match        *://*.gaypornstarharem.com/*
+// @match        *://*.mangarpg.com/*
 // @downloadURL  https://raw.githubusercontent.com/aruuush/several-extras/main/several_raids.user.js
 // @updateURL    https://raw.githubusercontent.com/aruuush/several-extras/main/several_raids.user.js
 // @icon         https://cdn3.iconfinder.com/data/icons/sex-6/128/XXX_3-02-512.png

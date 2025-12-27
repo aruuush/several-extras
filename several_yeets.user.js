@@ -3,9 +3,16 @@
 // @namespace    hh-several-yeets
 // @author       arush
 // @version      1.0.1
-// @description  Removes a few unnecessary things to make it less cluttered.
+// @description  Removes a few unnecessary things to make it less cluttered (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
+// @match        *://*.gayharem.com/*
+// @match        *://*.comixharem.com/*
+// @match        *://*.hornyheroes.com/*
+// @match        *://*.pornstarharem.com/*
+// @match        *://*.transpornstarharem.com/*
+// @match        *://*.gaypornstarharem.com/*
+// @match        *://*.mangarpg.com/*
 // @downloadURL  https://raw.githubusercontent.com/aruuush/several-extras/main/several_yeets.user.js
 // @updateURL    https://raw.githubusercontent.com/aruuush/several-extras/main/several_yeets.user.js
 // @icon         https://cdn3.iconfinder.com/data/icons/sex-6/128/XXX_3-02-512.png
