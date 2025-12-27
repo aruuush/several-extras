@@ -2,7 +2,7 @@
 // @name         Several Penta Drills
 // @namespace    hh-pentadrill
 // @author       arush
-// @version      1.0.1
+// @version      1.0.2
 // @description  Replace class icon with a persistent star toggle on Penta Drill opponents (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/penta-drill-arena*
 // @match        *://*.haremheroes.com/penta-drill-arena*

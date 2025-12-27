@@ -2,7 +2,7 @@
 // @name         Several Raids
 // @namespace    hh-several-raids
 // @author       arush
-// @version      1.14.0
+// @version      1.14.1
 // @description  Grey out or hide raid cards based on shard progress, villain id, or star level (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*

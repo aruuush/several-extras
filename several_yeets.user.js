@@ -2,7 +2,7 @@
 // @name         Several Yeets
 // @namespace    hh-several-yeets
 // @author       arush
-// @version      1.0.1
+// @version      1.0.2
 // @description  Removes a few unnecessary things to make it less cluttered (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
