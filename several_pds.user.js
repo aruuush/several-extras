@@ -2,7 +2,7 @@
 // @name         Several Penta Drills
 // @namespace    hh-pentadrill
 // @author       arush
-// @version      1.0.2
+// @version      1.0.3
 // @description  Replace class icon with a persistent star toggle on Penta Drill opponents (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/penta-drill-arena*
 // @match        *://*.haremheroes.com/penta-drill-arena*
@@ -49,6 +49,7 @@
         el.style.fontSize = "35px";
         el.style.position = "absolute";
         el.style.right = "10px";
+        el.style.bottom = "0px";
         el.style.color = isStarred ? "#ffd700" : "#bbb";
         el.style.userSelect = "none";
         return el;
@@ -88,12 +89,8 @@
                 updateStar(star, nowStarred);
             });
 
-            // Replace class icon with the star
-            const classBox = box.querySelector('.player-class');
-            if (classBox) {
-                classBox.innerHTML = "";
-                classBox.appendChild(star);
-            }
+            // Add star to the box
+            box.appendChild(star);
         });
     }
 
@@ -115,10 +112,11 @@
     }
 
     // Run when ready
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
-    } else {
-        init();
-    }
+    // if (document.readyState === 'loading') {
+    //     document.addEventListener('DOMContentLoaded', init);
+    // } else {
+    //     init();
+    // }
 
+    // Not needed anymore as sims are there.
 })();

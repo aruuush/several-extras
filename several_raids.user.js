@@ -2,7 +2,7 @@
 // @name         Several Raids
 // @namespace    hh-several-raids
 // @author       arush
-// @version      1.14.3
+// @version      1.14.4
 // @description  Grey out or hide raid cards based on shard progress, villain id, or star level (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -72,7 +72,11 @@ async function severalRaids() {
             const match = v.href.match(/id_opponent=(\d+)/);
             if (match) {
                 const id = parseInt(match[1], 10);
-                if (id > maxId) maxId = id;
+                if (id > maxId) {
+                    if (id < 20) {  // Temporary fix
+                        maxId = id;
+                    }
+                }
             }
         });
 

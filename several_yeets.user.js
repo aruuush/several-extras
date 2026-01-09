@@ -2,7 +2,7 @@
 // @name         Several Yeets
 // @namespace    hh-several-yeets
 // @author       arush
-// @version      1.0.4
+// @version      1.0.5
 // @description  Removes a few unnecessary things to make it less cluttered (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -197,38 +197,40 @@ async function severalYeets() {
             return;
         }
 
-        const OLD_IMAGES_URL = window.IMAGES_URL;
-        window.IMAGES_URL = 'https://hh.hh-content.com';
-
-        // Use a MutationObserver to detect new images instead of a 1ms loop
+        const oldImagesURL = window.IMAGES_URL
+        window.IMAGES_URL = 'https://hh.hh-content.com'
+        $('img').each((i, el) => {
+            const oldhref = $(el).attr('src')
+            if (oldhref) {
+                let newhref = oldhref.replace(oldImagesURL, window.IMAGES_URL)
+                if (oldhref.includes("pictures/girls/")) {
+                    const pokeID = ("00" + Math.floor(Math.random() * (898) + 1)).substr(-3);
+                    newhref = `https://assets.` + `pokemon.` + `com/assets/cms2/img/pokedex/detail/${pokeID}.png`
+                }
+                if (newhref !== oldhref) {
+                    $(el).attr('src', newhref)
+                }
+            }
+        })
         const observer = new MutationObserver(() => {
-            document.querySelectorAll('img:not([data-rewritten])').forEach(img => {
-                const oldSrc = img.src;
-                if (!oldSrc) return;
-
-                let newSrc = oldSrc.replace(OLD_IMAGES_URL, window.IMAGES_URL);
-
-                // Replace certain images with Pokémon only once
-                if (oldSrc.includes("pictures/girls") && !oldSrc.includes("elements")) {
-                    const pokeID = String(Math.floor(Math.random() * 898) + 1).padStart(3, '0');
-                    newSrc = `https://assets.pokemon.com/assets/cms2/img/pokedex/detail/${pokeID}.png`;
+            $('img').each((i, el) => {
+                const oldhref = $(el).attr('src')
+                if (oldhref) {
+                    let newhref = oldhref.replace(oldImagesURL, window.IMAGES_URL)
+                    if (oldhref.includes("pictures/girls/")) {
+                        const pokeID = ("00" + Math.floor(Math.random() * (898) + 1)).substr(-3);
+                        newhref = `https://assets.` + `pokemon.` + `com/assets/cms2/img/pokedex/detail/${pokeID}.png`
+                    }
+                    if (newhref !== oldhref) {
+                        $(el).attr('src', newhref)
+                    }
                 }
-
-                if (newSrc !== oldSrc) {
-                    img.src = newSrc;
-                }
-
-                // Mark image as processed
-                img.dataset.rewritten = "true";
-            });
+            })
         });
-
-        // Observe new elements being added anywhere in the DOM
-        observer.observe(document.body, { childList: true, subtree: true });
-
-        // Optionally process all current images once on load
-        document.querySelectorAll('img').forEach(img => img.removeAttribute('data-rewritten'));
-        observer.takeRecords();
+        observer.observe(document.documentElement, {
+            childList: true,
+            subtree: true,
+        });
     }
 
     /* --------------------------------------------
