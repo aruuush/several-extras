@@ -2,7 +2,7 @@
 // @name         Several Raids
 // @namespace    hh-several-raids
 // @author       arush
-// @version      1.14.4
+// @version      1.14.5
 // @description  Grey out or hide raid cards based on shard progress, villain id, or star level (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -24,26 +24,22 @@
 // ==/UserScript==
 
 if (unsafeWindow.__severalRaidsInitialized) {
-    console.log('[Several Raids] already initialized, skipping');
     return;
 }
 unsafeWindow.__severalRaidsInitialized = true;
 
 function waitForHHPlusPlus(cb) {
     if (unsafeWindow.hhPlusPlusConfig) {
-        console.log('[Several Raids] HH++ already loaded');
         cb();
         return;
     }
 
-    console.log('[Several Raids] waiting for HHPlusPlus');
 
     let done = false;
 
     const finish = () => {
         if (done) return;
         done = true;
-        console.log('[Several Raids] HH++ detected');
         cb();
     };
 
@@ -265,7 +261,6 @@ async function severalRaids() {
      * Initialization
      * ------------------------------------------ */
     const CONFIG = await loadConfig();
-    console.log('[Several Raids] Config loaded:', CONFIG);
 
     // Detect villain menu appearance to save last villain id
     const villainObserver = new MutationObserver((_, observer) => {

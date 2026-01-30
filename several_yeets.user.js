@@ -2,7 +2,7 @@
 // @name         Several Yeets
 // @namespace    hh-several-yeets
 // @author       arush
-// @version      1.0.5
+// @version      1.0.6
 // @description  Removes a few unnecessary things to make it less cluttered (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -24,26 +24,22 @@
 // ==/UserScript==
 
 if (unsafeWindow.__severalYeetsInitialized) {
-    console.log('[Several Yeets] already initialized, skipping');
     return;
 }
 unsafeWindow.__severalYeetsInitialized = true;
 
 function waitForHHPlusPlus(cb) {
     if (unsafeWindow.hhPlusPlusConfig) {
-        console.log('[Several Yeets] HH++ already loaded');
         cb();
         return;
     }
 
-    console.log('[Several Yeets] waiting for HHPlusPlus');
 
     let done = false;
 
     const finish = () => {
         if (done) return;
         done = true;
-        console.log('[Several Yeets] HH++ detected');
         cb();
     };
 
@@ -64,7 +60,6 @@ async function severalYeets() {
         doWhenSelectorAvailable('#bg_all .fixed_scaled img', () => {
             const img = document.querySelector('#bg_all .fixed_scaled img');
             img.remove();
-            console.log('[Several Yeets] Removed backgrounds');
         });
     }
 
@@ -76,7 +71,6 @@ async function severalYeets() {
         doWhenSelectorAvailable('.waifu-buttons-container', () => {
             const container = document.querySelector('.waifu-buttons-container');
             container.style.display = 'none';
-            console.log('[Several Yeets] Removed waifu buttons');
         });
     }
 
@@ -88,7 +82,6 @@ async function severalYeets() {
         doWhenSelectorAvailable('.credits', () => {
             const el = document.querySelector('.credits');
             el.remove();
-            console.log('[Several Yeets] Removed credits from Labyrinth++');
         });
     }
 
@@ -96,7 +89,6 @@ async function severalYeets() {
         if (window.location.pathname.includes('shop.html')) {
             doWhenSelectorAvailable('#ad_shop', (el) => {
                 el.remove();
-                console.log('[Several Yeets] Removed market ads');
             });
         }
     }
@@ -167,7 +159,6 @@ async function severalYeets() {
             const girlImage = document.querySelector('.champions-over__girl-image');
             if (girlImage) {
                 girlImage.remove();
-                console.log('[Several Yeets] Removed champions girl image');
             }
         });
     }
@@ -182,7 +173,6 @@ async function severalYeets() {
 
             if (claimAllButton) {
                 claimAllButton.remove();
-                console.log('[Several Yeets] Removed Claim All button from Penta Drill');
             }
         });
     }
@@ -410,7 +400,6 @@ async function severalYeets() {
     } = unsafeWindow;
 
     const CONFIG = await loadConfig();
-    console.log('[UI] Config loaded:', CONFIG);
 
     if (CONFIG.removeAllBackgrounds.enabled) {
         removeAllBackgrounds();
