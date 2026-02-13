@@ -16,6 +16,7 @@ Filters include:
 Install from here : https://raw.githubusercontent.com/aruuush/several-extras/main/several_raids.user.js
 
 <br>
+<br>
 
 ## Several Yeets
 
@@ -39,20 +40,3 @@ Bonus:
 
 
 Install from here : https://raw.githubusercontent.com/aruuush/several-extras/main/several_yeets.user.js
-
-<!-- ## Several PDs
-
-Adds persistent starring in PD. No menu. So not toggleable. Not useful if you just do 10x.
-
-### Example Screenshot
-
-![Example Screenshot of Several PDs](several_pds_screenshot.png)
-
-Install from here : https://raw.githubusercontent.com/aruuush/several-extras/main/several_pds.user.js
-
-# Requirements
-
-You need [TamperMonkey](https://www.tampermonkey.net) or a similar browser extension.
-
-HH++ bdsm is **required** for the script to work. Get it from [here](https://raw.githubusercontent.com/zoop0kemon/hh-plus-plus/main/dist/hh-plus-plus.user.js) 
--->
