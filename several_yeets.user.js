@@ -2,7 +2,7 @@
 // @name         Several Yeets
 // @namespace    hh-several-yeets
 // @author       arush
-// @version      1.0.6
+// @version      1.0.7
 // @description  Removes a few unnecessary things to make it less cluttered (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -57,89 +57,76 @@ async function severalYeets() {
     'use strict';
 
     function removeAllBackgrounds() {
-        doWhenSelectorAvailable('#bg_all .fixed_scaled img', () => {
-            const img = document.querySelector('#bg_all .fixed_scaled img');
-            img.remove();
-        });
+        GM_addStyle(`
+            #bg_all .fixed_scaled img {
+                display: none !important;
+            }
+        `);
     }
 
     function removeWaifuButtons() {
-        if (!window.location.pathname.includes('home.html')) {
-            return;
+        if (window.location.pathname.includes('home.html')) {
+            GM_addStyle(`
+                .waifu-buttons-container {
+                    display: none !important;
+                }
+            `);
         }
-
-        doWhenSelectorAvailable('.waifu-buttons-container', () => {
-            const container = document.querySelector('.waifu-buttons-container');
-            container.style.display = 'none';
-        });
     }
 
     function removeCreditsFromLabyrinthPlusPlus() {
-        if (!window.location.pathname.includes('labyrinth')) {
-            return;
+        if (window.location.pathname.includes('labyrinth')) {
+            GM_addStyle(`
+                .credits {
+                    display: none !important;
+                }
+            `);
         }
-
-        doWhenSelectorAvailable('.credits', () => {
-            const el = document.querySelector('.credits');
-            el.remove();
-        });
     }
 
     function removeMarketAds() {
         if (window.location.pathname.includes('shop.html')) {
-            doWhenSelectorAvailable('#ad_shop', (el) => {
-                el.remove();
-            });
+            GM_addStyle(`
+                #ad_shop {
+                    display: none !important;
+                }
+            `);
         }
     }
 
     function removeExcessLabyrinthSlots() {
         if (!window.location.pathname.includes('labyrinth')) return;
 
-        function filterLabyrinthSlots() {
-            // In case there are multiple shops / lists rendered
-            const containers = document.querySelectorAll('.shop-items-list');
-            if (!containers.length) return;
+        function filterLabyrinthSlots(root = document) {
+            const slots = root.querySelectorAll('.shop-item');
 
-            containers.forEach(container => {
-                const slots = container.querySelectorAll('.shop-item');
-                slots.forEach(slot => {
-                    const button = slot.querySelector('.buy-item');
-                    if (!button) return;
+            slots.forEach(slot => {
+                const button = slot.querySelector('.buy-item');
+                if (!button) return;
 
-                    const index = parseInt(button.getAttribute('slot_index'), 10);
-                    if (!isNaN(index) && index > 3) {
-                        slot.remove();
-                    }
-                });
+                const index = Number(button.getAttribute('slot_index'));
+                if (index > 3) {
+                    slot.remove();
+                }
             });
         }
 
-        // Run once for whatever is currently on screen
-        doWhenSelectorAvailable('.shop-items-list', filterLabyrinthSlots);
+        // Initial run
+        filterLabyrinthSlots();
 
-        // Watch the whole document for shop re-renders
+        // Observe for re-renders
         const observer = new MutationObserver((mutations) => {
-            let shouldRun = false;
-
             for (const mutation of mutations) {
-                for (const node of mutation.addedNodes) {
-                    if (node.nodeType !== 1) continue; // not an element
+                mutation.addedNodes.forEach(node => {
+                    if (node.nodeType !== 1) return;
 
-                    // If a shop list or shop item (or a container with them) was added
                     if (
-                        node.matches?.('.shop-items-list, .shop-item') ||
-                        node.querySelector?.('.shop-items-list, .shop-item')
+                        node.matches?.('.shop-item') ||
+                        node.querySelector?.('.shop-item')
                     ) {
-                        shouldRun = true;
-                        break;
+                        filterLabyrinthSlots(node);
                     }
-                }
-                if (shouldRun) break;
-            }
-
-            if (shouldRun) {
-                doWhenSelectorAvailable('.shop-items-list', filterLabyrinthSlots);
+                });
             }
         });
 
@@ -150,31 +137,14 @@ async function severalYeets() {
     }
 
     function removeChampionsGirl() {
-        if (!window.location.pathname.includes('champions') &&
-            !window.location.pathname.includes('club-champion')) {
-            return;
+        if (window.location.pathname.includes('champions') ||
+            window.location.pathname.includes('club-champion')) {
+            GM_addStyle(`
+                .champions-over__girl-image {
+                    display: none !important;
+                }
+            `);
         }
-
-        doWhenSelectorAvailable('.champions-over__girl-image', () => {
-            const girlImage = document.querySelector('.champions-over__girl-image');
-            if (girlImage) {
-                girlImage.remove();
-            }
-        });
-    }
-
-    function removeClaimAllButtonFromPD() {
-        if (!window.location.pathname.includes('penta-drill')) {
-            return;
-        }
-
-        doWhenSelectorAvailable('#claim-all', () => {
-            const claimAllButton = document.querySelector('#claim-all');
-
-            if (claimAllButton) {
-                claimAllButton.remove();
-            }
-        });
     }
 
     function changeGirlsToPokemons() {
@@ -241,8 +211,6 @@ async function severalYeets() {
             removeExcessLabyrinthSlots:
                 { enabled: true },
             removeChampionsGirl:
-                { enabled: true },
-            removeClaimAllButtonFromPD:
                 { enabled: true },
             changeGirlsToPokemons:
                 { enabled: true },
@@ -355,21 +323,6 @@ async function severalYeets() {
         registerModule({
             group: 'several_yeets',
             configSchema: {
-                baseKey: 'removeClaimAllButtonFromPD',
-                label: 'Remove Claim All button from Penta Drill',
-                default: true,
-            },
-            run() {
-                config.removeClaimAllButtonFromPD = {
-                    enabled: true,
-                };
-            },
-        });
-        config.removeClaimAllButtonFromPD.enabled = false;
-
-        registerModule({
-            group: 'several_yeets',
-            configSchema: {
                 baseKey: 'changeGirlsToPokemons',
                 label: 'Change girls images to Pokemons (Credits to Zoopokemon)',
                 default: true,
@@ -423,10 +376,6 @@ async function severalYeets() {
 
     if (CONFIG.removeChampionsGirl.enabled) {
         removeChampionsGirl();
-    }
-
-    if (CONFIG.removeClaimAllButtonFromPD.enabled) {
-        removeClaimAllButtonFromPD();
     }
 
     if (CONFIG.changeGirlsToPokemons.enabled) {
