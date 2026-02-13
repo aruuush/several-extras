@@ -2,7 +2,7 @@
 // @name         Several Raids
 // @namespace    hh-several-raids
 // @author       arush
-// @version      1.14.5
+// @version      1.14.6
 // @description  Grey out or hide raid cards based on shard progress, villain id, or star level (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -158,9 +158,7 @@ async function severalRaids() {
             greyOutHigherIdThanLastVillain:
                 { enabled: true },
             dontHideSeasons:
-                { enabled: false },
-            hideSeveralRaids:
-                { enabled: false },
+                { enabled: false }
         };
 
         // changing config requires HH++
@@ -236,21 +234,6 @@ async function severalRaids() {
         });
         config.dontHideSeasons.enabled = false;
 
-        registerModule({
-            group: 'SeveralRaids',
-            configSchema: {
-                baseKey: 'hideSeveralRaids',
-                label: 'Hide all greyed out raids',
-                default: false,
-            },
-            run() {
-                config.hideSeveralRaids = {
-                    enabled: true,
-                };
-            }
-        });
-        config.hideSeveralRaids.enabled = false;
-
         hhLoadConfig();
         runModules();
 
@@ -280,10 +263,6 @@ async function severalRaids() {
     greyOutRaids(CONFIG);
     if (document.querySelector('.script-fight-a-villain-menu')) {
         saveLastVillain();
-    }
-
-    if (CONFIG.hideSeveralRaids.enabled) {
-        GM_addStyle(`.raid-card.grey-overlay { display: none !important; }`);
     }
 
     // Watch for new raid cards dynamically (with short debounce)
