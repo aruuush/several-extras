@@ -2,7 +2,7 @@
 // @name         Several Yeets
 // @namespace    hh-several-yeets
 // @author       arush
-// @version      1.0.7
+// @version      1.0.8
 // @description  Removes a few unnecessary things to make it less cluttered (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -147,6 +147,16 @@ async function severalYeets() {
         }
     }
 
+    function removeClaimAllButtonFromPD() {
+        if (window.location.pathname.includes('penta-drill')) {
+            GM_addStyle(`
+                #claim-all {
+                    display: none !important;
+                }
+            `);
+        }
+    }
+
     function changeGirlsToPokemons() {
         if (!window.location.pathname.includes('leagues') &&
             !window.location.pathname.includes('waifu') &&
@@ -211,6 +221,8 @@ async function severalYeets() {
             removeExcessLabyrinthSlots:
                 { enabled: true },
             removeChampionsGirl:
+                { enabled: true },
+            removeClaimAllButtonFromPD:
                 { enabled: true },
             changeGirlsToPokemons:
                 { enabled: true },
@@ -323,6 +335,21 @@ async function severalYeets() {
         registerModule({
             group: 'several_yeets',
             configSchema: {
+                baseKey: 'removeClaimAllButtonFromPD',
+                label: 'Remove claim all button from penta drill',
+                default: true,
+            },
+            run() {
+                config.removeClaimAllButtonFromPD = {
+                    enabled: true,
+                };
+            },
+        });
+        config.removeClaimAllButtonFromPD.enabled = false;
+
+        registerModule({
+            group: 'several_yeets',
+            configSchema: {
                 baseKey: 'changeGirlsToPokemons',
                 label: 'Change girls images to Pokemons (Credits to Zoopokemon)',
                 default: true,
@@ -344,14 +371,6 @@ async function severalYeets() {
     /* --------------------------------------------
      * Initialization
      * ------------------------------------------ */
-    const {
-        HHPlusPlus: {
-            Helpers: {
-                doWhenSelectorAvailable,
-            },
-        },
-    } = unsafeWindow;
-
     const CONFIG = await loadConfig();
 
     if (CONFIG.removeAllBackgrounds.enabled) {
@@ -376,6 +395,10 @@ async function severalYeets() {
 
     if (CONFIG.removeChampionsGirl.enabled) {
         removeChampionsGirl();
+    }
+
+    if (CONFIG.removeClaimAllButtonFromPD.enabled) {
+        removeClaimAllButtonFromPD();
     }
 
     if (CONFIG.changeGirlsToPokemons.enabled) {
