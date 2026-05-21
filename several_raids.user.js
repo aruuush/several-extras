@@ -2,7 +2,7 @@
 // @name         Several Raids
 // @namespace    hh-several-raids
 // @author       arush
-// @version      2.0.2
+// @version      2.0.3
 // @description  Grey out or hide raid cards based on shard progress, villain id, or star level (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -202,21 +202,6 @@ async function severalRaids() {
         });
     }
 
-    // Core: Full grey out run
-    function greyOutRaids(CONFIG) {
-        const cache = buildGreyCache(CONFIG);
-        applyGreyCache(cache);
-    }
-
-    // Core: Apply existing cache immediately, then rebuild
-    function greyOutRaidsWithCache(CONFIG) {
-        const existing = GM_getValue(GREY_CACHE_KEY, null);
-        if (existing) {
-            applyGreyCache(existing);
-        }
-        greyOutRaids(CONFIG);
-    }
-
     // Configuration: HH++ Settings Integration
     async function loadConfig() {
         let config = {
@@ -316,8 +301,9 @@ async function severalRaids() {
             saveLastVillain();
             observer.disconnect();
             if (isRaidsPage) {
+                const cache = buildGreyCache(CONFIG);
                 doWhenSelectorAvailable('.raid-card', () => {
-                    greyOutRaids(CONFIG);
+                    applyGreyCache(cache);
                 });
             }
         }
@@ -339,9 +325,13 @@ async function severalRaids() {
         saveLastVillain();
     }
 
-    // Apply cached grey immediately, then rebuild
+    // Apply existing cache immediately, precompute new one, apply when DOM is ready
+    const existing = GM_getValue(GREY_CACHE_KEY, null);
+    const cache = buildGreyCache(CONFIG);
+
     doWhenSelectorAvailable('.raid-card', () => {
-        greyOutRaidsWithCache(CONFIG);
+        if (existing) applyGreyCache(existing);
+        applyGreyCache(cache);
     });
 }
 
