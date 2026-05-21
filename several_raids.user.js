@@ -2,7 +2,7 @@
 // @name         Several Raids
 // @namespace    hh-several-raids
 // @author       arush
-// @version      1.14.6
+// @version      2.0.1
 // @description  Grey out or hide raid cards based on shard progress, villain id, or star level (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -34,7 +34,6 @@ function waitForHHPlusPlus(cb) {
         return;
     }
 
-
     let done = false;
 
     const finish = () => {
@@ -56,9 +55,13 @@ function waitForHHPlusPlus(cb) {
 async function severalRaids() {
     'use strict';
 
-    /* --------------------------------------------
-     * Utility: Save and Load Last Villain ID
-     * ------------------------------------------ */
+    const GREY_CACHE_KEY = 'sr_grey_cache';
+    const GIRL_DICT_KEY = 'sr_girl_dict';
+
+    const isHomePage = window.location.pathname.includes('home.html');
+    const isRaidsPage = window.location.pathname.includes('love-raids');
+
+    // Utility: Villain ID
     function saveLastVillain() {
         const villains = document.querySelectorAll('.script-fight-a-villain-menu .menu-villain[href*="id_opponent="]');
         if (!villains.length) return;
@@ -68,10 +71,8 @@ async function severalRaids() {
             const match = v.href.match(/id_opponent=(\d+)/);
             if (match) {
                 const id = parseInt(match[1], 10);
-                if (id > maxId) {
-                    if (id < 20) {  // Temporary fix
-                        maxId = id;
-                    }
+                if (id > maxId && id < 20) {
+                    maxId = id;
                 }
             }
         });
@@ -86,70 +87,136 @@ async function severalRaids() {
         return GM_getValue('lastVillainId', null);
     }
 
-    /* --------------------------------------------
-     * Core: Determine whether a raid card should be hidden
-     * ------------------------------------------ */
-    function shouldGreyOutRaid(CONFIG, lastVillainId, card) {
-        // Check if its a seasons raid
-        if (CONFIG.dontHideSeasons.enabled) {
-            const seasonsLink = card.querySelector('a[href="/season-arena.html"]');
-            if (seasonsLink) {
-                return false;
+    // Utility: Lightweight girl dict
+    async function buildAndSaveGirlDict() {
+        const girlDictionary = await unsafeWindow.HHPlusPlus.Helpers.getGirlDictionary();
+        const dict = {};
+
+        girlDictionary.forEach((girl, id) => {
+            dict[id] = {
+                shards: girl.shards ?? 0,
+                nb_grades: girl.grade ?? 0,
+                grade_skins_data: (girl.preview?.grade_skins_data ?? []).map(s => ({
+                    is_owned: s.is_owned,
+                    shards_count: s.shards_count ?? 0,
+                })),
+            };
+        });
+
+        GM_setValue(GIRL_DICT_KEY, dict);
+        return dict;
+    }
+
+    function loadGirlDict() {
+        return GM_getValue(GIRL_DICT_KEY, {});
+    }
+
+    // Core: Grey out decision
+    function shouldGreyOut(CONFIG, lastVillainId, raidData, girlInfo) {
+        const isSeason = raidData.raid_module_type === 'season';
+
+        const shards = girlInfo?.shards ?? 0;
+        const nbGrades = girlInfo?.nb_grades ?? 0;
+        const skinData = girlInfo?.grade_skins_data ?? [];
+
+        // Season logic
+        if (isSeason) {
+            if (CONFIG.dontHideSeasons.enabled) {
+                if (shards < 100) return false;
+
+                const hasIncompleteSkin = skinData.some(s => !s.is_owned);
+                return !hasIncompleteSkin;
             }
         }
 
-        // --- Rule 1: Completed raid (100/100 shards)
-        const shardText = card.querySelector('.shards p span')?.textContent.trim() ?? '';
-        if (CONFIG.greyOutCompletedRaids.enabled && shardText === '100/100') {
-            return true;
-        }
+        // Rule 1: 100/100 shards
+        if (CONFIG.greyOutCompletedRaids.enabled && shards === 100) return true;
 
-        // --- Rule 2: 3-star girl with < 40 shards
-        let currentShardCount = parseInt(shardText.split('/')[0], 10);
-        if (isNaN(currentShardCount)) currentShardCount = 0;
+        // Rule 2: 3-star girl with < 40 shards
+        if (CONFIG.greyOut3StarsBelow40.enabled && nbGrades === 3 && shards < 40) return true;
 
-        const graded = card.querySelector('.graded');
-        const gCount = graded ? graded.querySelectorAll('g').length : 0;
-
-        if (CONFIG.greyOut3StarsBelow40.enabled && gCount === 3 && currentShardCount < 40) {
-            return true;
-        }
-
-        // --- Rule 3: Higher opponent ID than last villain
+        // Rule 3: villain out of reach
         if (CONFIG.greyOutHigherIdThanLastVillain.enabled && lastVillainId !== null) {
-            const opponentLink = card.querySelector('a[href*="id_opponent="]')?.getAttribute('href');
-            if (opponentLink) {
-                const match = opponentLink.match(/id_opponent=(\d+)/);
-                if (match) {
-                    const opponentId = parseInt(match[1], 10);
-                    if (opponentId > lastVillainId) {
-                        return true;
-                    }
-                }
+            if (raidData.raid_module_type === 'troll' || raidData.raid_module_type === 'champion') {
+                if (raidData.raid_module_pk > lastVillainId) return true;
             }
         }
 
         return false;
     }
 
-    /* --------------------------------------------
-     * Core: Apply raid-hiding logic
-     * ------------------------------------------ */
-    function greyOutRaids(CONFIG) {
+    // Core: Build full grey cache from love_raids
+    function buildGreyCache(CONFIG) {
+        const raids = love_raids ?? [];
+        const girlDict = loadGirlDict();
         const lastVillainId = getLastVillain();
+        const cache = {};
+
+        for (const raidData of raids) {
+            // Prefer live love_raids girl_data, supplement with our dict
+            const liveGirl = raidData.girl_data;
+            const dictGirl = girlDict[`${raidData.id_girl}`];
+
+            const girlInfo = {
+                shards: liveGirl?.shards ?? dictGirl?.shards ?? 0,
+                nb_grades: liveGirl?.nb_grades ?? dictGirl?.nb_grades ?? 0,
+                grade_skins_data: liveGirl?.preview?.grade_skins_data?.map(s => ({
+                    is_owned: s.is_owned,
+                    shards_count: s.shards_count ?? 0,
+                })) ?? dictGirl?.grade_skins_data ?? [],
+            };
+
+            const grey = shouldGreyOut(CONFIG, lastVillainId, raidData, girlInfo);
+            if (grey) {
+                cache[raidData.id_raid] = true;
+            }
+            // Not greyed = not stored (clean cache)
+        }
+
+        GM_setValue(GREY_CACHE_KEY, cache);
+        return cache;
+    }
+
+    // Core: Apply cache to DOM
+    function applyGreyCache(cache) {
+        const raids = love_raids ?? [];
+        const activeRaidIds = new Set(raids.map(r => r.id_raid));
 
         document.querySelectorAll('.raid-card').forEach(card => {
-            if (shouldGreyOutRaid(CONFIG, lastVillainId, card)) {
+            const raidId = parseInt(card.getAttribute('id_raid'), 10);
+            if (!raidId) return;
+
+            // Remove overlay for raids no longer in love_raids
+            if (!activeRaidIds.has(raidId)) {
+                card.classList.remove('grey-overlay');
+                return;
+            }
+
+            if (cache[raidId]) {
                 card.classList.add('grey-overlay');
+            } else {
+                card.classList.remove('grey-overlay');
             }
         });
     }
 
-    /* --------------------------------------------
-     * Configuration: HH++ Settings Integration
-     * ------------------------------------------ */
+    // Core: Full grey out run
+    function greyOutRaids(CONFIG) {
+        const cache = buildGreyCache(CONFIG);
+        applyGreyCache(cache);
+    }
+
+    // Core: Apply existing cache immediately, then rebuild
+    function greyOutRaidsWithCache(CONFIG) {
+        const existing = GM_getValue(GREY_CACHE_KEY, null);
+        if (existing) {
+            applyGreyCache(existing);
+        }
+        greyOutRaids(CONFIG);
+    }
+
+    // Configuration: HH++ Settings Integration
     async function loadConfig() {
-        // defaults
         let config = {
             greyOutCompletedRaids:
                 { enabled: true },
@@ -158,10 +225,9 @@ async function severalRaids() {
             greyOutHigherIdThanLastVillain:
                 { enabled: true },
             dontHideSeasons:
-                { enabled: false }
+                { enabled: false },
         };
 
-        // changing config requires HH++
         const {
             loadConfig: hhLoadConfig,
             registerGroup,
@@ -174,18 +240,28 @@ async function severalRaids() {
             name: 'Several Raids'
         });
 
+        const sheet = document.createElement('style');
+        sheet.textContent = `
+            h4.SeveralRaids.selected::after {
+                content: 'v${GM_info.script.version}';
+                display: block;
+                position: absolute;
+                top: -10px;
+                right: -15px;
+                font-size: 10px;
+            }
+            h4.SeveralRaids.selected:last-child::after { right: 0; }
+        `;
+        document.head.appendChild(sheet);
+
         registerModule({
             group: 'SeveralRaids',
             configSchema: {
                 baseKey: 'greyOutCompletedRaids',
-                label: 'Grey out raids with 100/100 shards obtained (Can have incomplete skins or can be mysterious raids)',
+                label: 'Grey out raids with 100/100 shards obtained',
                 default: true,
             },
-            run() {
-                config.greyOutCompletedRaids = {
-                    enabled: true,
-                };
-            },
+            run() { config.greyOutCompletedRaids = { enabled: true }; },
         });
         config.greyOutCompletedRaids.enabled = false;
 
@@ -196,11 +272,7 @@ async function severalRaids() {
                 label: 'Grey out 3 star girls with less than 40 shards obtained',
                 default: true,
             },
-            run() {
-                config.greyOut3StarsBelow40 = {
-                    enabled: true,
-                };
-            },
+            run() { config.greyOut3StarsBelow40 = { enabled: true }; },
         });
         config.greyOut3StarsBelow40.enabled = false;
 
@@ -211,11 +283,7 @@ async function severalRaids() {
                 label: 'Grey out raids who are on villains out of reach',
                 default: true,
             },
-            run() {
-                config.greyOutHigherIdThanLastVillain = {
-                    enabled: true,
-                };
-            }
+            run() { config.greyOutHigherIdThanLastVillain = { enabled: true }; },
         });
         config.greyOutHigherIdThanLastVillain.enabled = false;
 
@@ -226,11 +294,7 @@ async function severalRaids() {
                 label: 'Don\'t grey out incomplete seasons raids (Can be any girl)',
                 default: false,
             },
-            run() {
-                config.dontHideSeasons = {
-                    enabled: true,
-                };
-            }
+            run() { config.dontHideSeasons = { enabled: true }; },
         });
         config.dontHideSeasons.enabled = false;
 
@@ -240,38 +304,39 @@ async function severalRaids() {
         return config;
     }
 
-    /* --------------------------------------------
-     * Initialization
-     * ------------------------------------------ */
+    // Initialization
     const CONFIG = await loadConfig();
 
-    // Detect villain menu appearance to save last villain id
+    // Always watch for villain menu regardless of page
     const villainObserver = new MutationObserver((_, observer) => {
         const menu = document.querySelector('.script-fight-a-villain-menu');
         if (menu) {
             saveLastVillain();
             observer.disconnect();
+            if (isRaidsPage) {
+                greyOutRaids(CONFIG);
+            }
         }
     });
     villainObserver.observe(document.body, { childList: true, subtree: true });
 
-    if (!window.location.pathname.includes('love-raids')) {
+    // Home page: build and save girl dict
+    if (isHomePage) {
+        await buildAndSaveGirlDict();
         return;
     }
 
-    // Initial execution
-    greyOutRaids(CONFIG);
+    if (!isRaidsPage) {
+        return;
+    }
+
+    // Raids page
     if (document.querySelector('.script-fight-a-villain-menu')) {
         saveLastVillain();
     }
 
-    // Watch for new raid cards dynamically (with short debounce)
-    let raidTimeout;
-    const raidObserver = new MutationObserver(() => {
-        clearTimeout(raidTimeout);
-        raidTimeout = setTimeout(() => greyOutRaids(CONFIG), 10);
-    });
-    raidObserver.observe(document.body, { childList: true, subtree: true });
+    // Apply cached grey immediately, then rebuild
+    greyOutRaidsWithCache(CONFIG);
 }
 
 waitForHHPlusPlus(() => {
