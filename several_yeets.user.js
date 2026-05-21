@@ -2,7 +2,7 @@
 // @name         Several Yeets
 // @namespace    hh-several-yeets
 // @author       arush
-// @version      1.0.9
+// @version      1.0.10
 // @description  Removes a few unnecessary things to make it less cluttered (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -245,7 +245,7 @@ async function severalYeets() {
 
         const sheet = document.createElement('style');
         sheet.textContent = `
-            h4.SeveralYeets.selected::after {
+            h4.several_yeets.selected::after {
                 content: 'v${GM_info.script.version}';
                 display: block;
                 position: absolute;
@@ -253,7 +253,7 @@ async function severalYeets() {
                 right: -15px;
                 font-size: 10px;
             }
-            h4.SeveralYeets.selected:last-child::after { right: 0; }
+            h4.several_yeets.selected:last-child::after { right: 0; }
         `;
         document.head.appendChild(sheet);
 
