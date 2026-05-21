@@ -2,7 +2,7 @@
 // @name         Several Yeets
 // @namespace    hh-several-yeets
 // @author       arush
-// @version      1.0.8
+// @version      1.0.9
 // @description  Removes a few unnecessary things to make it less cluttered (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -162,6 +162,7 @@ async function severalYeets() {
             !window.location.pathname.includes('waifu') &&
             !window.location.pathname.includes('characters') &&
             !window.location.pathname.includes('pvp-arena') &&
+            !window.location.pathname.includes('path-of') &&
             !window.location.pathname.includes('champions') &&
             !window.location.pathname.includes('club-champion')) {
             return;
@@ -173,7 +174,7 @@ async function severalYeets() {
             const oldhref = $(el).attr('src')
             if (oldhref) {
                 let newhref = oldhref.replace(oldImagesURL, window.IMAGES_URL)
-                if (oldhref.includes("pictures/girls/")) {
+                if (oldhref.includes("pictures/gallery/")) {
                     const pokeID = ("00" + Math.floor(Math.random() * (898) + 1)).substr(-3);
                     newhref = `https://assets.` + `pokemon.` + `com/assets/cms2/img/pokedex/detail/${pokeID}.png`
                 }
@@ -187,7 +188,7 @@ async function severalYeets() {
                 const oldhref = $(el).attr('src')
                 if (oldhref) {
                     let newhref = oldhref.replace(oldImagesURL, window.IMAGES_URL)
-                    if (oldhref.includes("pictures/girls/")) {
+                    if (oldhref.includes("pictures/gallery/")) {
                         const pokeID = ("00" + Math.floor(Math.random() * (898) + 1)).substr(-3);
                         newhref = `https://assets.` + `pokemon.` + `com/assets/cms2/img/pokedex/detail/${pokeID}.png`
                     }
@@ -241,6 +242,20 @@ async function severalYeets() {
             name: 'Several Yeets',
             description: 'Removes a few unnecessary things to make it less cluttered.',
         });
+
+        const sheet = document.createElement('style');
+        sheet.textContent = `
+            h4.SeveralYeets.selected::after {
+                content: 'v${GM_info.script.version}';
+                display: block;
+                position: absolute;
+                top: -10px;
+                right: -15px;
+                font-size: 10px;
+            }
+            h4.SeveralYeets.selected:last-child::after { right: 0; }
+        `;
+        document.head.appendChild(sheet);
 
         registerModule({
             group: 'several_yeets',
