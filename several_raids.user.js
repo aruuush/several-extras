@@ -2,7 +2,7 @@
 // @name         Several Raids
 // @namespace    hh-several-raids
 // @author       arush
-// @version      2.0.1
+// @version      2.0.2
 // @description  Grey out or hide raid cards based on shard progress, villain id, or star level (Only Tested on hentaiheroes).
 // @match        *://*.hentaiheroes.com/*
 // @match        *://*.haremheroes.com/*
@@ -54,6 +54,8 @@ function waitForHHPlusPlus(cb) {
 
 async function severalRaids() {
     'use strict';
+
+    const { HHPlusPlus: { Helpers: { doWhenSelectorAvailable } } } = unsafeWindow;
 
     const GREY_CACHE_KEY = 'sr_grey_cache';
     const GIRL_DICT_KEY = 'sr_girl_dict';
@@ -314,7 +316,9 @@ async function severalRaids() {
             saveLastVillain();
             observer.disconnect();
             if (isRaidsPage) {
-                greyOutRaids(CONFIG);
+                doWhenSelectorAvailable('.raid-card', () => {
+                    greyOutRaids(CONFIG);
+                });
             }
         }
     });
@@ -336,7 +340,9 @@ async function severalRaids() {
     }
 
     // Apply cached grey immediately, then rebuild
-    greyOutRaidsWithCache(CONFIG);
+    doWhenSelectorAvailable('.raid-card', () => {
+        greyOutRaidsWithCache(CONFIG);
+    });
 }
 
 waitForHHPlusPlus(() => {
